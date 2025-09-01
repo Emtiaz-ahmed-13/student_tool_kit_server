@@ -5,7 +5,7 @@ dotenv.config({ path: path.join(process.cwd(), ".env") });
 
 export default {
   env: process.env.NODE_ENV,
-  port: process.env.PORT,
+  port: process.env.PORT || 3000, // Default to 3000 if PORT is not set
   gemini_api_key: process.env.GEMINI_API_KEY,
   jwt: {
     jwt_secret: process.env.JWT_SECRET,

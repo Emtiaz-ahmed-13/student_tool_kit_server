@@ -2,6 +2,9 @@ import { Server } from "http";
 import app from "./app";
 import config from "./config";
 
+// Export the app for Vercel
+export default app;
+
 async function main() {
   try {
     const server: Server = app.listen(config.port, () => {
@@ -43,4 +46,7 @@ async function main() {
   }
 }
 
-main();
+// Only start the server if this file is executed directly (not imported)
+if (require.main === module) {
+  main();
+}
