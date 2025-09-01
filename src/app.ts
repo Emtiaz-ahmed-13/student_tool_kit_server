@@ -1,8 +1,8 @@
-import express, { Application, NextFunction, Request, Response } from "express";
-import cors from "cors";
 import cookieParser from "cookie-parser";
-import router from "./app/routes";
+import cors from "cors";
+import express, { Application, NextFunction, Request, Response } from "express";
 import globalErrorHandler from "./app/middleware/globalErrorHandler";
+import router from "./app/routes";
 
 const app: Application = express();
 // CORS configuration
@@ -16,14 +16,26 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req: Request, res: Response) => {
   res.send({
-    Message: "Backend is running successfully 🏃🏻‍♂️‍➡️",
+    success: true,
+    message: "Backend is running successfully 🏃🏻‍♂️‍➡️",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
+  });
+});
+
+// Health check endpoint
+app.get("/health", (req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    message: "Server is healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
   });
 });
 
 app.use("/api/v1", router);
 
-app.use(globalErrorHandler);
-
+// Handle 404 for unmatched routes
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.status(404).json({
     success: false,
@@ -34,5 +46,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     },
   });
 });
+
+// Global error handler (must be last)
+app.use(globalErrorHandler);
 
 export default app;
