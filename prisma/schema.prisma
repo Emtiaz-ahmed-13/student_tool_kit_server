@@ -1,0 +1,539 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String              @id @default(uuid())
+  name                 String
+  email                String              @unique
+  password             String
+  avatar               String?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  budgets              Budget[]
+  classes              Class[]
+  examQuestions        ExamQuestion[]
+  focusHabitSessions   FocusHabitSession[]
+  focusHabits          FocusHabit[]
+  focusSessions        FocusSession[]
+  learningStreaks      LearningStreak[]
+  notes                Note[]
+  readingMaterials     ReadingMaterial[]
+  groupMembers         StudyGroupMember[]
+  studyGroups          StudyGroup[]
+  studyPlans           StudyPlan[]
+  studyReports         StudyReport[]
+  subjectStudySessions StudySession[]      @relation("SubjectStudySessions")
+  subjects             Subject[]
+  uploadedNotes        UploadedNote[]
+
+  @@map("users")
+}
+
+model Class {
+  id          String   @id @default(uuid())
+  subject     String
+  instructor  String?
+  dayOfWeek   String
+  startTime   String
+  endTime     String
+  location    String?
+  color       String   @default("#3B82F6")
+  description String?
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("classes")
+}
+
+model Budget {
+  id          String     @id @default(uuid())
+  title       String
+  amount      Float
+  type        BudgetType
+  category    String
+  description String?
+  date        DateTime   @default(now())
+  userId      String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("budgets")
+}
+
+model ExamQuestion {
+  id            String       @id @default(uuid())
+  subject       String
+  question      String
+  questionType  QuestionType
+  difficulty    Difficulty
+  options       String[]
+  correctAnswer String?
+  explanation   String?
+  userId        String
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("exam_questions")
+}
+
+model StudyPlan {
+  id             String      @id @default(uuid())
+  title          String
+  subject        String
+  description    String?
+  priority       Priority
+  status         TaskStatus
+  deadline       DateTime?
+  estimatedHours Float?
+  userId         String
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks          StudyTask[]
+
+  @@map("study_plans")
+}
+
+model StudyTask {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  completed   Boolean   @default(false)
+  dueDate     DateTime?
+  studyPlanId String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  studyPlan   StudyPlan @relation(fields: [studyPlanId], references: [id], onDelete: Cascade)
+
+  @@map("study_tasks")
+}
+
+model Note {
+  id           String      @id @default(uuid())
+  title        String
+  content      String
+  subject      String?
+  tags         String[]    @default([])
+  isPublic     Boolean     @default(false)
+  userId       String
+  studyGroupId String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  studyGroup   StudyGroup? @relation(fields: [studyGroupId], references: [id])
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notes")
+}
+
+model StudyGroup {
+  id          String             @id @default(uuid())
+  name        String
+  description String?
+  subject     String
+  isPublic    Boolean            @default(false)
+  maxMembers  Int                @default(10)
+  creatorId   String
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  notes       Note[]
+  members     StudyGroupMember[]
+  creator     User               @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@map("study_groups")
+}
+
+model StudyGroupMember {
+  id           String     @id @default(uuid())
+  role         GroupRole  @default(MEMBER)
+  joinedAt     DateTime   @default(now())
+  userId       String
+  studyGroupId String
+  studyGroup   StudyGroup @relation(fields: [studyGroupId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, studyGroupId])
+  @@map("study_group_members")
+}
+
+model Subject {
+  id                 String            @id @default(uuid())
+  name               String
+  code               String?
+  type               SubjectType
+  description        String?
+  credits            Int?
+  instructor         String?
+  semester           String?
+  semesterStart      DateTime?
+  semesterEnd        DateTime?
+  duration           SemesterDuration?
+  nextExamDate       DateTime?
+  examType           String?
+  isExamImportant    Boolean           @default(false)
+  targetHoursPerWeek Float?
+  totalHoursStudied  Float             @default(0)
+  color              String            @default("#3B82F6")
+  isArchived         Boolean           @default(false)
+  userId             String
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  focusHabits        FocusHabit[]
+  focusSessions      FocusSession[]
+  learningStreaks    LearningStreak[]
+  readingMaterials   ReadingMaterial[]
+  studyReports       StudyReport[]
+  studySessions      StudySession[]
+  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  uploadedNotes      UploadedNote[]
+
+  @@map("subjects")
+}
+
+model StudySession {
+  id            String         @id @default(uuid())
+  date          DateTime       @default(now())
+  startTime     DateTime
+  endTime       DateTime?
+  duration      Int?
+  notes         String?
+  productivity  Int?
+  subjectId     String
+  userId        String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  studyReports  StudyReport[]
+  subject       Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  user          User           @relation("SubjectStudySessions", fields: [userId], references: [id], onDelete: Cascade)
+  uploadedNotes UploadedNote[]
+
+  @@map("study_sessions")
+}
+
+model FocusSession {
+  id              String        @id @default(uuid())
+  mode            FocusMode
+  status          SessionStatus
+  plannedDuration Int
+  actualDuration  Int?
+  startTime       DateTime?
+  endTime         DateTime?
+  pausedAt        DateTime?
+  pauseDuration   Int           @default(0)
+  focusDuration   Int?
+  breakDuration   Int?
+  notes           String?
+  distractions    Int           @default(0)
+  effectiveness   Int?
+  subjectId       String?
+  userId          String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  subject         Subject?      @relation(fields: [subjectId], references: [id])
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  studyReports    StudyReport[]
+
+  @@map("focus_sessions")
+}
+
+model ReadingMaterial {
+  id                String         @id @default(uuid())
+  title             String
+  description       String?
+  type              MaterialType
+  fileUrl           String?
+  filePath          String?
+  fileSize          Int?
+  extractedText     String?
+  topics            String[]       @default([])
+  keyPoints         String[]       @default([])
+  difficulty        Difficulty?
+  estimatedReadTime Int?
+  uploadStatus      UploadStatus   @default(PENDING)
+  processingLog     String?
+  subjectId         String?
+  userId            String
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  subject           Subject?       @relation(fields: [subjectId], references: [id])
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  studyReports      StudyReport[]
+  uploadedNotes     UploadedNote[]
+
+  @@map("reading_materials")
+}
+
+model StudyReport {
+  id                 String           @id @default(uuid())
+  type               ReportType
+  title              String
+  sessionDuration    Int
+  sessionDate        DateTime
+  topicsCovered      String[]         @default([])
+  keyConceptsLearned String[]         @default([])
+  comprehensionScore Float?
+  focusScore         Float?
+  productivityScore  Float?
+  materialsCovered   String[]         @default([])
+  notesQuality       Float?
+  questionsGenerated String[]         @default([])
+  recommendations    String[]         @default([])
+  nextSteps          String[]         @default([])
+  weakAreas          String[]         @default([])
+  subjectId          String?
+  studySessionId     String?
+  focusSessionId     String?
+  readingMaterialId  String?
+  userId             String
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  focusSession       FocusSession?    @relation(fields: [focusSessionId], references: [id])
+  readingMaterial    ReadingMaterial? @relation(fields: [readingMaterialId], references: [id])
+  studySession       StudySession?    @relation(fields: [studySessionId], references: [id])
+  subject            Subject?         @relation(fields: [subjectId], references: [id])
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("study_reports")
+}
+
+model UploadedNote {
+  id                 String           @id @default(uuid())
+  title              String
+  content            String
+  type               String?
+  fileUrl            String?
+  filePath           String?
+  fileSize           Int?
+  validationStatus   ValidationStatus @default(PENDING)
+  comprehensionScore Float?
+  completenessScore  Float?
+  accuracyScore      Float?
+  aiMissing          String[]         @default([])
+  aiSuggestions      String[]         @default([])
+  aiFeedback         String?
+  coveragePercentage Float?
+  missingTopics      String[]         @default([])
+  subjectId          String?
+  readingMaterialId  String?
+  studySessionId     String?
+  userId             String
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  readingMaterial    ReadingMaterial? @relation(fields: [readingMaterialId], references: [id])
+  studySession       StudySession?    @relation(fields: [studySessionId], references: [id])
+  subject            Subject?         @relation(fields: [subjectId], references: [id])
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("uploaded_notes")
+}
+
+model LearningStreak {
+  id              String        @id @default(uuid())
+  type            StreakType
+  title           String
+  description     String?
+  currentStreak   Int           @default(0)
+  longestStreak   Int           @default(0)
+  totalDays       Int           @default(0)
+  targetValue     Float?
+  targetUnit      String?
+  streakStartDate DateTime?
+  lastActiveDate  DateTime?
+  isActive        Boolean       @default(true)
+  isBroken        Boolean       @default(false)
+  subjectId       String?
+  userId          String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  subject         Subject?      @relation(fields: [subjectId], references: [id])
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  streakEntries   StreakEntry[]
+
+  @@map("learning_streaks")
+}
+
+model FocusHabit {
+  id                   String              @id @default(uuid())
+  name                 String
+  focusMode            FocusMode
+  targetDays           Int
+  focusDuration        Int
+  breakDuration        Int
+  sessionsPerDay       Int                 @default(1)
+  currentStreak        Int                 @default(0)
+  longestStreak        Int                 @default(0)
+  totalSessions        Int                 @default(0)
+  completedDays        Int                 @default(0)
+  isActive             Boolean             @default(true)
+  startDate            DateTime            @default(now())
+  targetDate           DateTime?
+  completedDate        DateTime?
+  averageEffectiveness Float?
+  bestTimeOfDay        String?
+  subjectId            String?
+  userId               String
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  habitSessions        FocusHabitSession[]
+  subject              Subject?            @relation(fields: [subjectId], references: [id])
+  user                 User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("focus_habits")
+}
+
+model FocusHabitSession {
+  id                String     @id @default(uuid())
+  date              DateTime   @default(now())
+  completed         Boolean    @default(false)
+  effectiveness     Int?
+  notes             String?
+  plannedSessions   Int        @default(1)
+  completedSessions Int        @default(0)
+  habitId           String
+  userId            String
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  habit             FocusHabit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, date])
+  @@map("focus_habit_sessions")
+}
+
+model StreakEntry {
+  id        String         @id @default(uuid())
+  date      DateTime       @default(now())
+  value     Float
+  goalMet   Boolean        @default(false)
+  notes     String?
+  metadata  Json?
+  streakId  String
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  streak    LearningStreak @relation(fields: [streakId], references: [id], onDelete: Cascade)
+
+  @@unique([streakId, date])
+  @@map("streak_entries")
+}
+
+enum BudgetType {
+  INCOME
+  EXPENSE
+}
+
+enum QuestionType {
+  MCQ
+  SHORT_ANSWER
+  TRUE_FALSE
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum GroupRole {
+  ADMIN
+  MEMBER
+}
+
+enum SubjectType {
+  COURSE
+  SUBJECT
+}
+
+enum SemesterDuration {
+  THREE_MONTHS
+  SIX_MONTHS
+  FOUR_MONTHS
+  ANNUAL
+}
+
+enum FocusMode {
+  POMODORO
+  DEEP_WORK
+  CUSTOM
+  MARATHON
+  POMODORO_CLASSIC
+  POMODORO_EXTENDED
+  DEEP_WORK_90
+  DEEP_WORK_120
+  TIMEBOXING_45
+  TIMEBOXING_60
+  RULE_52_17
+  RULE_90_20
+  MINDFUL_25
+  MINDFUL_45
+  FEYNMAN_BLOCKS
+  ACTIVE_RECALL_30
+  HABIT_21_DAYS
+  HABIT_66_DAYS
+}
+
+enum SessionStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum MaterialType {
+  PDF
+  DOCUMENT
+  IMAGE
+  VIDEO
+  AUDIO
+  WEBPAGE
+  TEXT
+}
+
+enum UploadStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum ReportType {
+  STUDY_SESSION
+  FOCUS_SESSION
+  READING_SESSION
+  PRACTICE_SESSION
+}
+
+enum StreakType {
+  DAILY_STUDY
+  WEEKLY_GOAL
+  MONTHLY_TARGET
+  SUBJECT_FOCUS
+  NOTES_VALIDATION
+}
+
+enum ValidationStatus {
+  PENDING
+  VALIDATED
+  REJECTED
+  NEEDS_IMPROVEMENT
+}
