@@ -55,6 +55,14 @@ const moduleRoutes = [
   },
 ];
 
+// Add logging to see which routes are being registered
+if (process.env.NODE_ENV === "development") {
+  console.log("Registering API routes:");
+  moduleRoutes.forEach((route) => {
+    console.log(`  ${route.path}`);
+  });
+}
+
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
 
 export default router;

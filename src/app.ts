@@ -33,6 +33,11 @@ app.get("/health", (req: Request, res: Response) => {
   });
 });
 
+// Add logging to see when routes are being mounted
+if (process.env.NODE_ENV === "development") {
+  console.log("Mounting API routes at /api/v1");
+}
+
 app.use("/api/v1", router);
 
 // Handle 404 for unmatched routes

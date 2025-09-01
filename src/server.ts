@@ -2,8 +2,13 @@ import { Server } from "http";
 import app from "./app";
 import config from "./config";
 
-// Export the app for Vercel
+// Export the app as default for Vercel
 export default app;
+
+// Also export a handler for Vercel serverless functions
+export const handler = (req: any, res: any) => {
+  return app(req, res);
+};
 
 async function main() {
   try {

@@ -3,6 +3,13 @@ import path from "path";
 
 dotenv.config({ path: path.join(process.cwd(), ".env") });
 
+// Log environment for debugging
+if (process.env.NODE_ENV === "development") {
+  console.log("Environment variables loaded:");
+  console.log("  NODE_ENV:", process.env.NODE_ENV);
+  console.log("  PORT:", process.env.PORT);
+}
+
 export default {
   env: process.env.NODE_ENV,
   port: process.env.PORT || 3000, // Default to 3000 if PORT is not set
