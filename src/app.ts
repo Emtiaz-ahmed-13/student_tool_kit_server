@@ -1,6 +1,7 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
+import path from "path";
 import globalErrorHandler from "./app/middleware/globalErrorHandler";
 import router from "./app/routes";
 
@@ -65,13 +66,12 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static UI assets
+const publicDir = path.join(process.cwd(), "public");
+app.use(express.static(publicDir));
+
 app.get("/", (req: Request, res: Response) => {
-  res.send({
-    success: true,
-    message: "Backend is running successfully 🏃🏻‍♂️‍➡️",
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || "development",
-  });
+  res.sendFile(path.join(publicDir, "index.html"));
 });
 
 // Health check endpoint
