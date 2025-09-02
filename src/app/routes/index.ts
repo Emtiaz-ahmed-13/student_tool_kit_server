@@ -13,6 +13,9 @@ import { SubjectRoutes } from "../modules/subject/subject.routes";
 
 const router = express.Router();
 
+// Add logging for debugging
+console.log("Registering module routes");
+
 const moduleRoutes = [
   {
     path: "/auth",
@@ -61,12 +64,10 @@ const moduleRoutes = [
 ];
 
 // Add logging to see which routes are being registered
-if (process.env.NODE_ENV === "development") {
-  console.log("Registering API routes:");
-  moduleRoutes.forEach((route) => {
-    console.log(`  ${route.path}`);
-  });
-}
+console.log("Registering API routes:");
+moduleRoutes.forEach((route) => {
+  console.log(`  /api/v1${route.path}`);
+});
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
 

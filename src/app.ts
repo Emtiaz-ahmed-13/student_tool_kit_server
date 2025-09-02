@@ -6,6 +6,15 @@ import router from "./app/routes";
 
 const app: Application = express();
 
+// Add request logging for debugging
+app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log(`Incoming request: ${req.method} ${req.path}`);
+  console.log(
+    `Full URL: ${req.protocol}://${req.get("host")}${req.originalUrl}`
+  );
+  next();
+});
+
 // Enhanced CORS configuration for deployment
 const corsOptions = {
   origin: function (
@@ -76,14 +85,13 @@ app.get("/health", (req: Request, res: Response) => {
 });
 
 // Add logging to see when routes are being mounted
-if (process.env.NODE_ENV === "development") {
-  console.log("Mounting API routes at /api/v1");
-}
+console.log("Mounting API routes at /api/v1");
 
 app.use("/api/v1", router);
 
 // Handle 404 for unmatched routes
 app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log(`404 - Route not found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({
     success: false,
     message: "API NOT FOUND!",
