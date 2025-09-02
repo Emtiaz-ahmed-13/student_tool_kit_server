@@ -29,12 +29,20 @@ const corsOptions = {
       // Add your frontend domains here
       "https://your-frontend-domain.vercel.app",
       "https://your-frontend-domain.com",
+      // Add your actual frontend domain
+      "https://student-tool-kit-frontend.vercel.app", // Replace with your actual frontend URL
     ];
 
-    if (allowedOrigins.includes(origin)) {
+    // Check if the origin is in the allowed list or if it's a partial match
+    const isAllowed = allowedOrigins.some(
+      (allowedOrigin) =>
+        origin === allowedOrigin || origin.startsWith(allowedOrigin)
+    );
+
+    if (isAllowed) {
       callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS"));
+      callback(null, true); // Temporarily allow all for debugging
     }
   },
   credentials: true,
