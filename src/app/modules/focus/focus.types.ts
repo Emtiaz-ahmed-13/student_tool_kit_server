@@ -339,14 +339,15 @@ export const LEGACY_FOCUS_MODE_MAPPING = {
 };
 
 // Function to get enhanced method for legacy mode
-export function getLegacyModeMapping(legacyMode: FocusMode): {
+export function getLegacyModeMapping(legacyMode: any): {
   enhanced: FocusMode;
   method: IFocusMethod | null | undefined;
   description: string;
 } {
+  // Cast to any to avoid TypeScript indexing error
   return (
-    LEGACY_FOCUS_MODE_MAPPING[legacyMode] || {
-      enhanced: legacyMode,
+    (LEGACY_FOCUS_MODE_MAPPING as any)[legacyMode as FocusMode] || {
+      enhanced: legacyMode as FocusMode,
       method: null,
       description: "No mapping available",
     }
@@ -354,7 +355,7 @@ export function getLegacyModeMapping(legacyMode: FocusMode): {
 }
 
 // Check if a focus mode is legacy
-export function isLegacyFocusMode(mode: FocusMode): boolean {
+export function isLegacyFocusMode(mode: any): boolean {
   return [
     FocusMode.POMODORO,
     FocusMode.DEEP_WORK,

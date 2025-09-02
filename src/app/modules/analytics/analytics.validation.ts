@@ -33,7 +33,7 @@ export const getWeaknessAnalysisSchema = z.object({
       .string()
       .transform((val) => val === "true")
       .optional()
-      .default(true),
+      .default("true"),
     minQuestionsRequired: z.string().transform(Number).optional().default("5"),
   }),
 });
@@ -48,7 +48,7 @@ export const getStudyPatternsSchema = z.object({
       .string()
       .transform((val) => val === "true")
       .optional()
-      .default(true),
+      .default("true"),
     subjectFilter: z.string().optional(),
   }),
 });
@@ -59,7 +59,9 @@ export const getPredictiveAnalysisSchema = z.object({
     subjectId: z.string({
       required_error: "Subject ID is required for predictive analysis",
     }),
-    examDate: z.string().datetime().optional(),
+    examDate: z.string().datetime({
+      message: "Exam date is required",
+    }),
     currentPerformanceWeight: z
       .string()
       .transform(Number)
@@ -69,7 +71,7 @@ export const getPredictiveAnalysisSchema = z.object({
       .string()
       .transform((val) => val === "true")
       .optional()
-      .default(true),
+      .default("true"),
   }),
 });
 
@@ -88,7 +90,7 @@ export const getSubjectAnalyticsSchema = z.object({
       .string()
       .transform((val) => val === "true")
       .optional()
-      .default(false),
+      .default("false"),
     detailLevel: z
       .enum(["basic", "detailed", "comprehensive"])
       .optional()
@@ -110,7 +112,7 @@ export const getPerformanceComparisonSchema = z.object({
       .string()
       .transform((val) => val === "true")
       .optional()
-      .default(false),
+      .default("false"),
   }),
 });
 
@@ -136,12 +138,12 @@ export const getStudyEfficiencySchema = z.object({
       .string()
       .transform((val) => val === "true")
       .optional()
-      .default(true),
+      .default("true"),
     includeMethodComparison: z
       .string()
       .transform((val) => val === "true")
       .optional()
-      .default(true),
+      .default("true"),
   }),
 });
 
@@ -156,17 +158,17 @@ export const getAiInsightsSchema = z.object({
       .string()
       .transform((val) => val === "true")
       .optional()
-      .default(true),
+      .default("true"),
   }),
 });
 
 export const generateStudyPlanSchema = z.object({
   body: z.object({
     subjectId: z.string({
-      required_error: "Subject ID is required for study plan generation",
+      message: "Subject ID is required for study plan generation",
     }),
     examDate: z.string().datetime({
-      required_error: "Exam date is required",
+      message: "Exam date is required",
     }),
     currentPerformanceLevel: z.number().min(0).max(100).optional(),
     targetScore: z.number().min(0).max(100).optional().default(85),
@@ -186,11 +188,11 @@ export const getProgressTrackingSchema = z.object({
       .string()
       .transform((val) => val === "true")
       .optional()
-      .default(true),
+      .default("true"),
     compareWithGoals: z
       .string()
       .transform((val) => val === "true")
       .optional()
-      .default(true),
+      .default("true"),
   }),
 });

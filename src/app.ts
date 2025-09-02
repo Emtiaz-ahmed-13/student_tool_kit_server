@@ -5,9 +5,43 @@ import globalErrorHandler from "./app/middleware/globalErrorHandler";
 import router from "./app/routes";
 
 const app: Application = express();
-// CORS configuration
-app.use(cors());
 
+// Enhanced CORS configuration for deployment
+const corsOptions = {
+  origin: function (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void
+  ) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    // Allow localhost for development
+    if (
+      origin.startsWith("http://localhost") ||
+      origin.startsWith("https://localhost")
+    ) {
+      return callback(null, true);
+    }
+
+    // Allow your frontend domain(s) - add your frontend URL here
+    // For example: if your frontend is at https://your-frontend.vercel.app
+    const allowedOrigins = [
+      // Add your frontend domains here
+      "https://your-frontend-domain.vercel.app",
+      "https://your-frontend-domain.com",
+    ];
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 app.use(cookieParser());
 
 //parser

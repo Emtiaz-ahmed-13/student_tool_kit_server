@@ -267,9 +267,8 @@ export class FocusService {
     // Check if session already exists for this date
     const existingSession = await prisma.focusHabitSession.findUnique({
       where: {
-        habitId_userId_date: {
+        habitId_date: {
           habitId,
-          userId,
           date: sessionDate,
         },
       },
@@ -848,8 +847,8 @@ export class FocusService {
 
       for (const session of legacySessions) {
         try {
-          if (isLegacyFocusMode(session.mode)) {
-            const mapping = getLegacyModeMapping(session.mode);
+          if (isLegacyFocusMode(session.mode as any)) {
+            const mapping = getLegacyModeMapping(session.mode as any);
 
             // Create a focus habit suggestion based on legacy usage
             const habitName = `Migrated ${session.mode} Sessions`;

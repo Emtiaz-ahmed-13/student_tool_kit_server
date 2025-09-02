@@ -109,7 +109,7 @@ export const getHabitProgressSchema = z.object({
       .string()
       .transform((val) => val === "true")
       .optional()
-      .default(true),
+      .default("true"),
   }),
 });
 
@@ -125,7 +125,7 @@ export const getFocusAnalyticsSchema = z.object({
       .string()
       .transform((val) => val === "true")
       .optional()
-      .default(true),
+      .default("true"),
   }),
 });
 

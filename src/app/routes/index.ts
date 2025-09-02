@@ -1,4 +1,5 @@
 import express from "express";
+import testRoutes from "../../test-routes";
 import { AnalyticsRoutes } from "../modules/analytics/analytics.routes";
 import { AuthRoutes } from "../modules/Auth/auth.routes";
 import { BudgetRoutes } from "../modules/budget/budget.routes";
@@ -52,6 +53,10 @@ const moduleRoutes = [
   {
     path: "/focus",
     route: FocusRoutes,
+  },
+  {
+    path: "/test",
+    route: testRoutes,
   },
 ];
 

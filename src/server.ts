@@ -6,8 +6,11 @@ import config from "./config";
 export default app;
 
 // Also export a handler for Vercel serverless functions
-export const handler = (req: any, res: any) => {
-  return app(req, res);
+export const handler = async (req: any, res: any) => {
+  // Import serverless-http dynamically
+  const serverless = await import("serverless-http");
+  const handler = serverless.default(app);
+  return handler(req, res);
 };
 
 async function main() {

@@ -1,23 +1,28 @@
-import app from "./app";
+import express, { Request, Response } from "express";
+const router = express.Router();
 
-// This is a simple test to verify routes are registered correctly
-const testRoutes = () => {
-  // @ts-ignore
-  const routes = app._router.stack
-    .filter((r: any) => r.route)
-    .map((r: any) => {
-      return {
-        path: r.route.path,
-        methods: Object.keys(r.route.methods),
-      };
-    });
+// Extend the Request type to include user property
+interface AuthenticatedRequest extends Request {
+  user?: any;
+}
 
-  console.log("Registered routes:");
-  routes.forEach((route: any) => {
-    console.log(
-      `  ${Object.keys(route.methods)[0].toUpperCase()} ${route.path}`
-    );
+// Simple test route to verify API is working
+router.get("/test", (req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    message: "Test route is working!",
+    timestamp: new Date().toISOString(),
   });
-};
+});
 
-export default testRoutes;
+// Add this route to test authentication
+router.get("/test-auth", (req: AuthenticatedRequest, res: Response) => {
+  res.status(200).json({
+    success: true,
+    message: "Authenticated test route is working!",
+    timestamp: new Date().toISOString(),
+    user: req.user || null,
+  });
+});
+
+export default router;
